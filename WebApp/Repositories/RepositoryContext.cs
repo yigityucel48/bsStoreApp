@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WebApp.Models;
+﻿using Entities.Models;
+using Microsoft.EntityFrameworkCore;
+using WebApp.Repositories.Config;
 
 namespace WebApp.Repositories
 {
@@ -10,5 +11,9 @@ namespace WebApp.Repositories
         {
         }
         public DbSet<Book> Books { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new BookConfig());
+        }
     }
 }
