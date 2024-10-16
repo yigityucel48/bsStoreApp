@@ -25,6 +25,11 @@ namespace WebApp.Extensions
             services.AddScoped<IServiceManager, ServiceManager>();
             return services;
         }
+        public static IServiceCollection ConfigureLoggerServiceManagement(this IServiceCollection services)
+        {
+            services.AddSingleton<ILoggerService, LoggerManager>();
+            return services;
+        }
 
     }
 }

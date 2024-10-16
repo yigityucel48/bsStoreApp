@@ -39,6 +39,7 @@ public class BooksController : ControllerBase
     {
         try
         {
+            throw new Exception("!!!");
             var entity = _services.BookService.GetOneBookById(false, id);
             if (entity is null)
             {
