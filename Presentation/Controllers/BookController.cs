@@ -1,4 +1,6 @@
-﻿using Entities.Models;
+﻿using Entities.DTOs;
+using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
@@ -22,76 +24,38 @@ public class BooksController : ControllerBase
     [HttpGet]
     public IActionResult AllBooks()
     {
-        try
-        {
-            var books = _services.BookService.GetAllBooks(false);
-            return Ok(books);
-        }
-        catch (Exception ex)
-        {
-
-            throw new Exception(ex.Message);
-        }
+        var books = _services.BookService.GetAllBooks(false);
+        return Ok(books);
 
     }
     [HttpGet("{id}")]
     public IActionResult BookById([FromRoute(Name = "id")] int id)
     {
-        try
-        {
-            throw new Exception("!!!");
-            var entity = _services.BookService.GetOneBookById(false, id);
-            if (entity is null)
-            {
-                return NotFound();
-            }
-            return Ok(entity);
-
-        }
-        catch (Exception ex)
-        {
-
-            throw new Exception(ex.Message);
-        }
+        var entity = _services.BookService.GetOneBookById(false, id);
+        return Ok(entity);
 
     }
     [HttpPost]
-    public IActionResult AddOneBook([FromBody] Book book)
+    public IActionResult AddOneBook([FromBody] CreateBookDto bookDto)
     {
-        try
+        if (bookDto is null)
         {
-            if (book is null)
-            {
-                return BadRequest();
-            }
-            _services.BookService.CreateOneBook(book);
-            return StatusCode(201, book);
+            return BadRequest();
         }
-        catch (Exception ex)
-        {
-
-            throw new Exception(ex.Message);
-        }
+       var book = _services.BookService.CreateOneBook(bookDto);
+        return StatusCode(201, book);
 
     }
 
     [HttpPut("{id}")]
-    public IActionResult OneBook([FromRoute(Name = "id")] int id, [FromBody] Book book)
+    public IActionResult OneBook([FromRoute(Name = "id")] int id, [FromBody] UpdateBookDto bookDto)
     {
-        try
+        if (bookDto is null)
         {
-            if (book is null)
-            {
-                return BadRequest();
-            }
-            _services.BookService.UpdateOneBook(id, true, book);
-            return NoContent();
+            return BadRequest();
         }
-        catch (Exception ex)
-        {
-
-            throw new Exception(ex.Message);
-        }
+        _services.BookService.UpdateOneBook(id, false, bookDto);
+        return NoContent();
 
 
     }
@@ -99,36 +63,17 @@ public class BooksController : ControllerBase
 
     public IActionResult DeleteOneBook([FromRoute(Name = "id")] int id)
     {
-        try
-        {
-            _services.BookService.DeleteOneBook(id, false);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
+        _services.BookService.DeleteOneBook(id, false);
+        return NoContent();
 
-            throw new Exception(ex.Message);
-        }
     }
     [HttpPatch("{id}")]
-    public IActionResult OneBookPatch([FromRoute(Name = "id")] int id, [FromBody] JsonPatchDocument<Book> bookpatch)
+    public IActionResult OneBookPatch([FromRoute(Name = "id")] int id, [FromBody] JsonPatchDocument<BookDto> bookpatch)
     {
-        try
-        {
-            var entity = _services.BookService.GetOneBookById(true, id);
-            if (entity is null)
-            {
-                return NotFound();
-            }
-            bookpatch.ApplyTo(entity);
-            _services.BookService.UpdateOneBook(id, true, entity);
-            return NoContent(); //204
-        }
-        catch (Exception ex)
-        {
-
-            throw new Exception(ex.Message);
-        }
+        var bookDto = _services.BookService.GetOneBookById(true, id);
+        bookpatch.ApplyTo(bookDto);
+        _services.BookService.UpdateOneBook(id, false, new UpdateBookDto {Id=bookDto.Id,Price=bookDto.Price,Title=bookDto.Title });
+        return NoContent(); //204
 
 
     }
